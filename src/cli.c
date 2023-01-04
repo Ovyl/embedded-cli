@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright (c) 2019 Sean Farrelly
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,11 +20,11 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- * 
+ *
  * File        cli.c
  * Created by  Sean Farrelly
  * Version     1.0
- * 
+ *
  */
 
 /*! @file cli.c
@@ -37,12 +37,13 @@
 
 rx_data_t rx_data;
 
-const char cli_unrecog[] = "CLI Error: Command not recognized\r\n";
+const char cli_unrecog[] = "CLI Error: Command not recognized %s\r\n";
 
 /*!
  * @brief This internal API prints a message to the user on the CLI.
  */
 static void cli_print(cli_t *cli, const char *msg);
+static void cli_print_error(cli_t *cli, const char *msg, char *buf);
 
 /*!
  * @brief This API initialises the command-line interface.
@@ -90,7 +91,7 @@ cli_status_t cli_process(cli_t *cli)
     {
         argv[++argc] = strtok(NULL, " ");
     }
-    
+
     /* Search the command table for a matching command, using argv[0]
      * which is the command name. */
     for(size_t i = 0 ; i < cli->cmd_cnt ; i++)
@@ -103,10 +104,10 @@ cli_status_t cli_process(cli_t *cli)
     }
 
     /* Command not found */
+    cli_print_error(cli, cli_unrecog, rx_data.buf_ptr);
     rx_data.current_buf_length = 0;
     rx_data.is_ready = false;
     memset(rx_data.buf_ptr, 0, rx_data.buf_size);
-    cli_print(cli, cli_unrecog);
     return CLI_E_CMD_NOT_FOUND;
 }
 
@@ -121,7 +122,7 @@ cli_status_t cli_put(cli_t *cli, char c)
         case CMD_TERMINATOR:
         {
             /* Terminate the msg and reset the msg ptr by subtracting the length. This should put us back at the begining of the array  */
-            *rx_data.buf_ptr = '\0';             
+            *rx_data.buf_ptr = '\0';
             rx_data.buf_ptr -= rx_data.current_buf_length;
             rx_data.is_ready = true;
             rx_data.current_buf_length = 0;
@@ -156,4 +157,11 @@ cli_status_t cli_put(cli_t *cli, char c)
 static void cli_print(cli_t *cli, const char *msg)
 {
     cli->println(msg);
+}
+
+static void cli_print_error(cli_t *cli, const char *msg, char *buf)
+{
+    cli->println(msg);
+    cli->println(buf);
+    cli->println("\r\n");
 }
