@@ -120,8 +120,8 @@ cli_status_t cli_put(cli_t *cli, char c)
     {
         case CMD_TERMINATOR:
         {
-            /* Terminate the msg and reset the msg ptr by subtracting the length. This should put us back at the begining of the array  */
-            *rx_data.buf_ptr = '\0';             
+            /* Terminate the msg and reset the msg ptr by subtracting the length. This should put us back at the beginning of the array  */
+            *rx_data.buf_ptr = '\0';
             rx_data.buf_ptr -= rx_data.current_buf_length;
             rx_data.is_ready = true;
             rx_data.current_buf_length = 0;
@@ -137,10 +137,12 @@ cli_status_t cli_put(cli_t *cli, char c)
             /* Normal character received, add to buffer. */
             if(rx_data.current_buf_length < rx_data.buf_size)
             {
-                /* check for backspace or delete*/
+            	/* If backspace or delete remove character if we aren't at the beginning of the buffer */
             	if(c == 127 || c == 8){
-                    *rx_data.buf_ptr-- = '\0';
-                    rx_data.current_buf_length--;
+            		if(rx_data.current_buf_length > 0){
+						*rx_data.buf_ptr-- = '\0';
+						rx_data.current_buf_length--;
+            		}
             	}else{
                 *rx_data.buf_ptr++ = c;
                 rx_data.current_buf_length++;
