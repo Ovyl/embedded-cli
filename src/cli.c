@@ -137,8 +137,14 @@ cli_status_t cli_put(cli_t *cli, char c)
             /* Normal character received, add to buffer. */
             if(rx_data.current_buf_length < rx_data.buf_size)
             {
+                /* check for backspace or delete*/
+            	if(c == 127 || c == 8){
+                    *rx_data.buf_ptr-- = '\0';
+                    rx_data.current_buf_length--;
+            	}else{
                 *rx_data.buf_ptr++ = c;
                 rx_data.current_buf_length++;
+            	}
             }
             else
             {
