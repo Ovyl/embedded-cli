@@ -120,6 +120,11 @@ cli_status_t cli_put(cli_t *cli, char c)
     {
         case CMD_TERMINATOR:
         {
+            if(rx_data.current_buf_length == 0)
+            {
+                break; //Do nothing if we have not received any data
+            }
+
             /* Terminate the msg and reset the msg ptr by subtracting the length. This should put us back at the beginning of the array  */
             *rx_data.buf_ptr = '\0';
             rx_data.buf_ptr -= rx_data.current_buf_length;
