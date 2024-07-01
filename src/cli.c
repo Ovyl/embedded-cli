@@ -91,14 +91,16 @@ cli_status_t cli_process(cli_t *cli)
         argv[++argc] = strtok(NULL, " ");
     }
     
-    /* Search the command table for a matching command, using argv[0]
-     * which is the command name. */
-    for(size_t i = 0 ; i < cli->cmd_cnt ; i++)
-    {
-        if(strcmp(argv[0], cli->cmd_tbl[i].cmd) == 0)
+    if(argv[0] != NULL) {    
+        /* Search the command table for a matching command, using argv[0]
+        * which is the command name. */
+        for(size_t i = 0 ; i < cli->cmd_cnt ; i++)
         {
-            /* Found a match, execute the associated function. */
-            return cli->cmd_tbl[i].func(argc, argv);
+            if(strcmp(argv[0], cli->cmd_tbl[i].cmd) == 0)
+            {
+                /* Found a match, execute the associated function. */
+                return cli->cmd_tbl[i].func(argc, argv);
+            }
         }
     }
 
